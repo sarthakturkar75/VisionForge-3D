@@ -1,0 +1,220 @@
+/* index.css - CLEAN PROFESSIONAL VERSION */
+:root {
+	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+	color-scheme: dark;
+}
+
+/* 1. FORCE FULL SCREEN LAYOUT */
+html, body, #root {
+	margin: 0;
+	padding: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	background-color: #000;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* 2. GLOBAL RESET */
+button {
+	cursor: pointer;
+	border: none;
+	outline: none;
+	font-family: inherit;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 3. STRUCTURAL WRAPPERS */
+.app-container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
+
+.scene-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	/* Model stays behind UI */
+}
+
+/* 4. PROFESSIONAL PALETTE */
+.palette {
+	position: absolute;
+	top: 24px;
+	left: 24px;
+	z-index: 10;
+	/* UI stays in front */
+	width: 320px;
+	background: rgba(20, 20, 20, 0.7);
+	backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 20px;
+	padding: 24px;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+	color: #fff;
+	display: flex;
+	flex-direction: column;
+}
+
+.palette__header h1 {
+	margin: 0 0 24px 0;
+	font-size: 1.3rem !important;
+	/* Forces override of any global styles */
+	font-weight: 900;
+	letter-spacing: 3px;
+	background: linear-gradient(135deg, #4cd137 0%, #00cec9 100%);
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	filter: drop-shadow(0 0 5px rgba(76, 209, 55, 0.3));
+}
+
+.status-bar {
+	margin-bottom: 20px;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.4);
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-indicator {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+}
+
+.status-indicator--active {
+	background: #4cd137;
+	box-shadow: 0 0 12px #4cd137;
+}
+
+.status-indicator--inactive {
+	background: #ff4757;
+	box-shadow: 0 0 12px #ff4757;
+}
+
+.mode-switch {
+	display: flex;
+	background: rgba(255, 255, 255, 0.08);
+	padding: 4px;
+	border-radius: 10px;
+	margin-bottom: 24px;
+}
+
+.mode-btn {
+	flex: 1;
+	padding: 10px;
+	background: transparent;
+	color: #aaa;
+	border-radius: 8px;
+	font-weight: 700;
+	font-size: 0.85rem;
+}
+
+.mode-btn--mouse-active {
+	background: rgba(255, 255, 255, 0.15);
+	color: #fff;
+}
+
+.mode-btn--hand-active {
+	background: #0984e3;
+	color: #fff;
+	box-shadow: 0 4px 15px rgba(9, 132, 227, 0.4);
+}
+
+.section-label {
+	font-size: 0.7rem;
+	color: #666;
+	font-weight: 800;
+	letter-spacing: 1.5px;
+	margin-bottom: 12px;
+}
+
+.gesture-section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 28px;
+}
+
+.gesture-item {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.gesture-icon {
+	background: rgba(255, 255, 255, 0.05);
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.1rem;
+}
+
+.gesture-icon--active {
+	background: #0984e3;
+	box-shadow: 0 0 15px rgba(9, 132, 227, 0.5);
+}
+
+.gesture-info__title {
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.gesture-info__title--active {
+	color: #74b9ff;
+}
+
+.gesture-info__desc {
+	font-size: 0.65rem;
+	color: #888;
+	font-weight: 500;
+}
+
+.appearance-controls {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.btn-original {
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	background: rgba(255, 255, 255, 0.1);
+	color: #fff;
+}
+
+.btn-original--active {
+	background: #fff;
+	color: #000;
+}
+
+.color-swatch {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.color-swatch--selected {
+	border: 2px solid #fff;
+	transform: scale(1.15);
+}
