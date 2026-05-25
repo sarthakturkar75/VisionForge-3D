@@ -138,24 +138,14 @@ export default function ModelViewer({ url }) {
             const h1 = handData.hand1;
             const h2 = handData.hand2;
 
-            const isFists =
-                h1.detected &&
-                h2.detected &&
-                h1.gesture === "FIST" &&
-                h2.gesture === "FIST";
-            const isPalms =
-                h1.detected &&
-                h2.detected &&
-                h1.gesture === "PALM" &&
-                h2.gesture === "PALM";
-            const isOnePalm =
-                (h1.detected && h1.gesture === "PALM" && !h2.detected) ||
-                (!h1.detected && h2.detected && h2.gesture === "PALM");
+            const fistCount = (h1.detected && h1.gesture === "FIST" ? 1 : 0) + (h2.detected && h2.gesture === "FIST" ? 1 : 0);
+            const palmCount = (h1.detected && h1.gesture === "PALM" ? 1 : 0) + (h2.detected && h2.gesture === "PALM" ? 1 : 0);
 
             let nextMode = "IDLE";
-            if (isFists) nextMode = "GOD_MODE";
-            else if (isPalms) nextMode = "EXPLODE";
-            else if (isOnePalm) nextMode = "XRAY";
+            if (fistCount === 2) nextMode = "GOD_MODE_2";
+            else if (fistCount === 1) nextMode = "GOD_MODE_1";
+            else if (palmCount === 2) nextMode = "EXPLODE";
+            else if (palmCount === 1) nextMode = "XRAY";
 
             // Debounce state transitions
             if (nextMode === s.mode) {
@@ -164,10 +154,10 @@ export default function ModelViewer({ url }) {
                 s.debounce = Math.max(s.debounce - 1, 0);
                 if (s.debounce === 0) {
                     s.mode = nextMode;
-                    if (s.mode === "GOD_MODE") {
+                    if (s.mode === "GOD_MODE_1" || s.mode === "GOD_MODE_2" || s.mode === "EXPLODE") {
                         s.refCentroid = { ...handData.centroid };
-
                         s.refDist = handData.distance;
+                        s.refAngle = handData.angle;
                         s.baseScale = meshRef.current.scale.x;
                         s.baseRotation.copy(meshRef.current.quaternion);
                         s.basePosition.copy(meshRef.current.position);
@@ -176,30 +166,8 @@ export default function ModelViewer({ url }) {
             }
 
             if (s.debounce > 5) {
-                if (s.mode === "GOD_MODE") {
-                    // Zoom
-                    if (s.refDist > 0) {
-                        const ratio = handData.distance / Math.max(0.01, s.refDist);
-
-                        s.scale = s.baseScale * ratio;
-                    }
-
-                    // Pan
-                    const dX = (handData.centroid.x - s.refCentroid.x) * 30;
-                    const dY = (handData.centroid.y - s.refCentroid.y) * -30;
-                    const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(
-                        camera.quaternion,
-                    );
-                    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(
-                        camera.quaternion,
-                    );
-                    const panOffset = new THREE.Vector3()
-                        .addScaledVector(camRight, dX)
-                        .addScaledVector(camUp, dY);
-
-                    s.position.copy(s.basePosition).add(panOffset);
-
-                    // Rotation
+                if (s.mode === "GOD_MODE_1") {
+                    // Orbit (1 Fist)
                     const moveX = (handData.centroid.x - s.refCentroid.x) * 5;
                     const moveY = (handData.centroid.y - s.refCentroid.y) * 5;
                     const axis = new THREE.Vector3(-moveY, moveX, 0).normalize();
@@ -212,13 +180,36 @@ export default function ModelViewer({ url }) {
                             worldAxis,
                             angle,
                         );
+                        s.rotation.multiplyQuaternions(deltaQ, s.baseRotation);
+                    }
+                } else if (s.mode === "GOD_MODE_2") {
+                    // Pan, Zoom, Roll (2 Fists)
+                    // Zoom
+                    if (s.refDist > 0) {
+                        const ratio = handData.distance / Math.max(0.01, s.refDist);
+                        s.scale = s.baseScale * ratio;
+                    }
 
+                    // Pan
+                    const dX = (handData.centroid.x - s.refCentroid.x) * 15;
+                    const dY = (handData.centroid.y - s.refCentroid.y) * -15;
+                    const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+                    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+                    const panOffset = new THREE.Vector3().addScaledVector(camRight, dX).addScaledVector(camUp, dY);
+                    s.position.copy(s.basePosition).add(panOffset);
+
+                    // Roll
+                    const deltaAngle = handData.angle - s.refAngle;
+                    if (Math.abs(deltaAngle) > 0.05) {
+                        const cameraZ = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+                        const deltaQ = new THREE.Quaternion().setFromAxisAngle(cameraZ, deltaAngle);
                         s.rotation.multiplyQuaternions(deltaQ, s.baseRotation);
                     }
                 } else if (s.mode === "EXPLODE") {
+                    const distDelta = handData.distance - s.refDist;
                     const factor = Math.max(
                         0,
-                        Math.min(1, (handData.distance - 0.1) * 2.5),
+                        Math.min(1, distDelta * 2.5),
                     );
                     setExplodeFactor(factor);
                 } else if (s.mode === "XRAY") {
@@ -246,14 +237,23 @@ export default function ModelViewer({ url }) {
                     const target = child.userData.originalPos.clone();
                     const dir = child.userData.explodeDir;
                     target.addScaledVector(dir, explodeFactor * 8);
-                    child.position.lerp(target, 0.1);
+                    child.position.lerp(target, 0.25);
                 }
             });
             if (explodeFactor <= 0.01) {
                 meshRef.current.userData.isExpanded = false;
+                meshRef.current.traverse((child) => {
+                    if (child.isMesh && child.userData.originalPos) {
+                        child.position.copy(child.userData.originalPos);
+                    }
+                });
             }
         }
     });
 
-    return <primitive ref={meshRef} object={obj} />;
+    return (
+        <group ref={meshRef}>
+            <primitive object={obj} />
+        </group>
+    );
 }

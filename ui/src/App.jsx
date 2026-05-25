@@ -63,7 +63,7 @@ export default function App() {
 							{
 								icon: "✊",
 								title: "God Mode",
-								desc: "Two Fists • Move & Rotate",
+								desc: "1/2 Fists • Orbit, Pan, Zoom",
 								active: false,
 							},
 							{

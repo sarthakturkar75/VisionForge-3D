@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { useAppStore, handData } from "./store";
 
-const SMOOTHING = 0.2; // 0.1 (Heavy) -> 0.5 (Fast)
+const SMOOTHING = 0.1; // 0.1 (Heavy) -> 0.5 (Fast)
 
 // Helper: Linear Interpolation
 const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
@@ -17,9 +17,11 @@ const detectGesture = (landmarks) => {
 
     tips.forEach((tip) => {
         const dist = Math.sqrt(
-            Math.pow(tip.x - wrist.x, 2) + Math.pow(tip.y - wrist.y, 2)
+            Math.pow(tip.x - wrist.x, 2) +
+            Math.pow(tip.y - wrist.y, 2) +
+            Math.pow(tip.z - wrist.z, 2)
         );
-        // Threshold: 0.2 is relative to screen size.
+        // Threshold: 0.25 is relative to screen size/depth.
         if (dist > 0.25) extendedCount++;
     });
 
@@ -146,6 +148,10 @@ export default function HandTracker() {
                 );
             } else {
                 handData.hand2.detected = false;
+                handData.centroid.x = handData.hand1.x;
+                handData.centroid.y = handData.hand1.y;
+                handData.distance = 0;
+                handData.angle = 0;
             }
         };
 
