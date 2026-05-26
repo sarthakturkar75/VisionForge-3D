@@ -9,9 +9,26 @@ const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
 
 // Helper: Detect Gesture Shape
 const detectGesture = (landmarks) => {
-    // We check if fingertips are close to the wrist (FIST) or far (PALM)
     const wrist = landmarks[0];
+    const thumbTip = landmarks[4];
+    const indexTip = landmarks[8];
     const tips = [landmarks[8], landmarks[12], landmarks[16], landmarks[20]]; // Index, Middle, Ring, Pinky
+
+    // Check for PINCH first
+    const pinchDist = Math.sqrt(
+        Math.pow(indexTip.x - thumbTip.x, 2) +
+        Math.pow(indexTip.y - thumbTip.y, 2) +
+        Math.pow(indexTip.z - thumbTip.z, 2)
+    );
+    
+    // Check if index is somewhat extended from wrist (to avoid confusing with fist)
+    const indexDist = Math.sqrt(
+        Math.pow(indexTip.x - wrist.x, 2) +
+        Math.pow(indexTip.y - wrist.y, 2) +
+        Math.pow(indexTip.z - wrist.z, 2)
+    );
+
+    if (pinchDist < 0.08 && indexDist > 0.15) return "PINCH";
 
     let extendedCount = 0;
 

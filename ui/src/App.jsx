@@ -11,8 +11,6 @@ export default function App() {
 		useOriginalColors,
 		setUseOriginalColors,
 		isTracking,
-		explodeFactor,
-		xRayMode,
 	} = useAppStore();
 
 	return (
@@ -61,22 +59,22 @@ export default function App() {
 						<div className="section-label">GESTURE PROTOCOLS</div>
 						{[
 							{
+								icon: "🖐️",
+								title: "Rotate",
+								desc: "One Palm • Orbit Model",
+								active: true,
+							},
+							{
 								icon: "✊",
-								title: "God Mode",
-								desc: "1/2 Fists • Orbit, Pan, Zoom",
-								active: false,
+								title: "Pan",
+								desc: "One Fist • Move Model",
+								active: true,
 							},
 							{
-								icon: "👐",
-								title: "Explode View",
-								desc: "Two Palms • Pull Apart",
-								active: explodeFactor > 0,
-							},
-							{
-								icon: "✋",
-								title: "X-Ray Scan",
-								desc: "One Palm • Hold Steady",
-								active: xRayMode,
+								icon: "🤏",
+								title: "Zoom",
+								desc: "One Pinch • Drag Up/Down",
+								active: true,
 							},
 						].map((item, idx) => (
 							<div key={idx} className="gesture-item">

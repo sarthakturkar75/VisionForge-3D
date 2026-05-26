@@ -15,12 +15,6 @@ export const useAppStore = create((set) => ({
 
     isTracking: false,
     setIsTracking: (status) => set({ isTracking: status }),
-
-    explodeFactor: 0,
-    setExplodeFactor: (val) => set({ explodeFactor: val }),
-
-    xRayMode: false,
-    setXRayMode: (isActive) => set({ xRayMode: isActive }),
 }));
 
 export const handData = {
